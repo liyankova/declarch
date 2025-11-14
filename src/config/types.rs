@@ -1,0 +1,77 @@
+use serde::{Deserialize, Serialize};
+
+/// Global declarch configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GlobalConfig {
+    /// Which AUR helper to use (paru or yay)
+    #[serde(default = "default_aur_helper")]
+    pub aur_helper: AurHelper,
+
+    /// Other settings (future)
+    #[serde(default)]
+    pub other: std::collections::HashMap<String, String>,
+}
+
+fn default_aur_helper() -> AurHelper {
+    AurHelper::Paru
+}
+
+/// AUR helper choice
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum AurHelper {
+    Paru,
+    Yay,
+}
+
+impl std::fmt::Display for AurHelper {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Paru => write!(f, "paru"),
+            Self::Yay => write!(f, "yay"),
+        }
+    }
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        Self {
+            aur_helper: AurHelper::Paru,
+            other: std::collections::HashMap::new(),
+        }
+    }
+}
+
+/// Host-specific configuration
+#[derive(Debug, Clone, Default)]
+pub struct HostConfig {
+    pub description: Option<String>,
+    pub modules: Vec<String>,
+    pub packages: Vec<String>,
+    pub exclude: Vec<String>,
+    pub conflicts: Vec<String>,
+}
+
+/// Module configuration
+#[derive(Debug, Clone, Default)]
+pub struct ModuleConfig {
+    pub description: Option<String>,
+    pub packages: Vec<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_config() {
+        let config = GlobalConfig::default();
+        assert_eq!(config.aur_helper, AurHelper::Paru);
+    }
+
+    #[test]
+    fn test_aur_helper_display() {
+        assert_eq!(AurHelper::Paru.to_string(), "paru");
+        assert_eq!(AurHelper::Yay.to_string(), "yay");
+    }
+}

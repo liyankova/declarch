@@ -6,4 +6,3 @@ pub mod templates;
 pub use output::*;
 pub use errors::*;
 pub use paths::*;
-pub use templates::*;

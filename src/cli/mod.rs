@@ -1,5 +1,4 @@
 pub mod args;
 pub mod commands;
 
-pub use args::Cli;
-pub use commands::Command;
+pub use args::{Cli, Command, GlobalFlags, EditTarget, HostAction};
