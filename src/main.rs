@@ -17,7 +17,7 @@ fn main() {
     }
 }
 
-fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
+fn run(_args: &Cli) -> declarch::utils::errors::Result<()> {
     // TODO: Implement command dispatch
     output::info("Command execution not yet implemented");
     Ok(())
