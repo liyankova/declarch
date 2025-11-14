@@ -5,3 +5,4 @@ pub mod validator;
 
 pub use types::{GlobalConfig, AurHelper, HostConfig, ModuleConfig};
 pub use loader::{load_global_config, load_host, load_module};
+pub use validator::{validate_host, validate_module, ValidationError, Severity};
