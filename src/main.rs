@@ -28,9 +28,9 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             })
         }
         Some(Command::Sync {
-            dry_run,
-            prune,
-            host,
+            dry_run: _,
+            prune: _,
+            host: _,
         }) => {
             output::info("Sync command not yet implemented");
             Ok(())
@@ -43,19 +43,16 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             output::info(&format!("Host command not yet implemented: {:?}", action));
             Ok(())
         }
-        Some(Command::Check { verbose }) => {
-            output::info(&format!("Check command not yet implemented (verbose: {})", verbose));
+        Some(Command::Check { verbose: _ }) => {
+            output::info("Check command not yet implemented");
             Ok(())
         }
-        Some(Command::Info { diff }) => {
-            output::info(&format!("Info command not yet implemented (diff: {})", diff));
+        Some(Command::Info { diff: _ }) => {
+            output::info("Info command not yet implemented");
             Ok(())
         }
-        Some(Command::Clean { full, orphans }) => {
-            output::info(&format!(
-                "Clean command not yet implemented (full: {}, orphans: {})",
-                full, orphans
-            ));
+        Some(Command::Clean { full: _, orphans: _ }) => {
+            output::info("Clean command not yet implemented");
             Ok(())
         }
         None => {
