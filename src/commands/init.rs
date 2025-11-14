@@ -97,9 +97,9 @@ fn create_directories() -> Result<()> {
     fs::create_dir_all(&hosts_dir)?;
     fs::create_dir_all(&modules_dir)?;
 
-    output::indent(&format!("Created: {}", config_dir.display()), 1);
-    output::indent(&format!("Created: {}", hosts_dir.display()), 1);
-    output::indent(&format!("Created: {}", modules_dir.display()), 1);
+    output::indent(&format!("✓ Created: {}", config_dir.display()), 1);
+    output::indent(&format!("✓ Created: {}", hosts_dir.display()), 1);
+    output::indent(&format!("✓ Created: {}", modules_dir.display()), 1);
 
     Ok(())
 }
@@ -111,9 +111,9 @@ fn generate_templates(hostname: &str) -> Result<()> {
     if !config_file.exists() {
         let content = templates::default_config();
         fs::write(&config_file, content)?;
-        output::indent(&format!("Created: {}", config_file.display()), 1);
+        output::indent(&format!("✓ Created: {}", config_file.display()), 1);
     } else {
-        output::indent(&format!("Skipped: {} (already exists)", config_file.display()), 1);
+        output::indent(&format!("⊘ Skipped: {} (already exists)", config_file.display()), 1);
     }
 
     // Generate host file
@@ -121,9 +121,9 @@ fn generate_templates(hostname: &str) -> Result<()> {
     if !host_file.exists() {
         let content = templates::default_host(hostname);
         fs::write(&host_file, content)?;
-        output::indent(&format!("Created: {}", host_file.display()), 1);
+        output::indent(&format!("✓ Created: {}", host_file.display()), 1);
     } else {
-        output::indent(&format!("Skipped: {} (already exists)", host_file.display()), 1);
+        output::indent(&format!("⊘ Skipped: {} (already exists)", host_file.display()), 1);
     }
 
     // Generate base module
@@ -131,14 +131,13 @@ fn generate_templates(hostname: &str) -> Result<()> {
     if !base_module.exists() {
         let content = templates::default_base_module();
         fs::write(&base_module, content)?;
-        output::indent(&format!("Created: {}", base_module.display()), 1);
+        output::indent(&format!("✓ Created: {}", base_module.display()), 1);
     } else {
-        output::indent(&format!("Skipped: {} (already exists)", base_module.display()), 1);
+        output::indent(&format!("⊘ Skipped: {} (already exists)", base_module.display()), 1);
     }
 
     Ok(())
 }
-
 /// Print summary of what was initialized
 fn print_init_summary(hostname: &str) {
     output::separator();
