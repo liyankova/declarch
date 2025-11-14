@@ -1,6 +1,6 @@
 use crate::config::loader;
 use crate::config::types::{HostConfig, ModuleConfig};
-use crate::utils::errors::{DeclarchError, Result};
+use crate::utils::errors::Result;
 
 /// Validation error details
 #[derive(Debug, Clone)]
@@ -17,7 +17,7 @@ pub enum Severity {
 }
 
 /// Validate host configuration
-pub fn validate_host(hostname: &str, config: &HostConfig) -> Result<Vec<ValidationError>> {
+pub fn validate_host(_hostname: &str, config: &HostConfig) -> Result<Vec<ValidationError>> {
     let mut errors = Vec::new();
 
     // Check that all referenced modules exist
