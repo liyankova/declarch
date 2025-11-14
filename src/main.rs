@@ -1,5 +1,5 @@
 use clap::Parser;
-use declarch::cli::args::{Cli, Command};
+use declarch::cli::args::{Cli, Command, HostAction};
 use declarch::utils::output;
 use declarch::commands;
 
@@ -40,8 +40,14 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             Ok(())
         }
         Some(Command::Host { action }) => {
-            output::info(&format!("Host command not yet implemented: {:?}", action));
-            Ok(())
+            let host_action = match action {
+                HostAction::Enable { name } => {
+                    commands::host::HostAction::Enable(name.clone())
+                }
+                HostAction::Status => commands::host::HostAction::Status,
+                HostAction::List => commands::host::HostAction::List,
+            };
+            commands::host::run(host_action)
         }
         Some(Command::Check { verbose: _ }) => {
             output::info("Check command not yet implemented");
