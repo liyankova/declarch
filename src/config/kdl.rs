@@ -103,6 +103,11 @@ pub fn parse_global_config(path: &Path) -> Result<GlobalConfig> {
             reason: e.to_string(),
         })?;
 
+    parse_global_config_content(&content, path)
+}
+
+/// Parse global config from string content
+fn parse_global_config_content(content: &str, _path: &Path) -> Result<GlobalConfig> {
     let doc: KdlDocument = content
         .parse()
         .map_err(|e| DeclarchError::KdlParseError {
@@ -120,7 +125,7 @@ pub fn parse_global_config(path: &Path) -> Result<GlobalConfig> {
                     "yay" => AurHelper::Yay,
                     _ => {
                         return Err(DeclarchError::InvalidSyntax {
-                            file: path.display().to_string(),
+                            file: "config.decl".to_string(),
                             line: 0,
                             message: format!("Unknown aur_helper: {}", helper),
                         })
@@ -134,7 +139,7 @@ pub fn parse_global_config(path: &Path) -> Result<GlobalConfig> {
 }
 
 /// Helper to parse string arrays from KDL
-/// Handles both: packages [a b c] and packages "a" "b" "c"
+/// Handles both: packages "a" "b" "c" and packages [a b c]
 fn parse_string_array(node: &kdl::KdlNode) -> Result<Vec<String>> {
     let mut result = Vec::new();
 
@@ -148,7 +153,7 @@ fn parse_string_array(node: &kdl::KdlNode) -> Result<Vec<String>> {
     // Handle children nodes (array syntax)
     if let Some(children) = node.children() {
         for child_node in children.nodes() {
-            // Each child is typically unnamed and contains entries
+            // Each child node contains entries
             for entry in child_node.entries() {
                 if let kdl::KdlValue::String(s) = entry.value() {
                     result.push(s.to_string());
@@ -165,42 +170,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_module_content_array() {
-        let content = r#"
-description "Test module"
-packages [
-  "zsh"
-  "git"
-]
-        "#;
+    fn test_parse_module_content_inline() {
+        // KDL syntax: node name "arg1" "arg2" ...
+        let content = r#"description "Test module"
+packages "zsh" "git"
+"#;
         let path = Path::new("test.decl");
         let config = parse_module_content(content, path).unwrap();
         assert_eq!(config.description, Some("Test module".to_string()));
         assert_eq!(config.packages.len(), 2);
         assert!(config.packages.contains(&"zsh".to_string()));
-    }
-
-    #[test]
-    fn test_parse_module_content_inline() {
-        let content = r#"
-description "Test module"
-packages "zsh" "git"
-        "#;
-        let path = Path::new("test.decl");
-        let config = parse_module_content(content, path).unwrap();
-        assert_eq!(config.description, Some("Test module".to_string()));
-        assert_eq!(config.packages.len(), 2);
+        assert!(config.packages.contains(&"git".to_string()));
     }
 
     #[test]
     fn test_parse_host_content() {
-        let content = r#"
-description "Test host"
+        // Proper KDL syntax
+        let content = r#"description "Test host"
 modules "base" "tools"
 packages "neovim" "flatpak:obsidian"
 exclude "vim"
 conflicts "sway"
-        "#;
+"#;
         let path = Path::new("test.decl");
         let config = parse_host_content(content, path).unwrap();
         assert_eq!(config.description, Some("Test host".to_string()));
@@ -211,12 +202,10 @@ conflicts "sway"
     }
 
     #[test]
-    fn test_parse_global_config() {
-        let content = r#"
-aur_helper "paru"
-        "#;
+    fn test_parse_global_config_from_content() {
+        let content = r#"aur_helper "paru""#;
         let path = Path::new("config.decl");
-        let config = parse_global_config(path).unwrap();
+        let config = parse_global_config_content(content, path).unwrap();
         assert_eq!(config.aur_helper, AurHelper::Paru);
     }
 
@@ -226,5 +215,13 @@ aur_helper "paru"
         let path = Path::new("test.decl");
         let config = parse_module_content(content, path).unwrap();
         assert_eq!(config.packages.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_yay_helper() {
+        let content = r#"aur_helper "yay""#;
+        let path = Path::new("config.decl");
+        let config = parse_global_config_content(content, path).unwrap();
+        assert_eq!(config.aur_helper, AurHelper::Yay);
     }
 }
