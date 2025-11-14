@@ -1,8 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
-use chrono::Local;
 use crate::utils::{output, paths, errors::Result, templates};
-use crate::config::loader;
 
 /// Options for init command
 #[derive(Debug)]
@@ -41,7 +39,7 @@ pub fn run(options: InitOptions) -> Result<()> {
 
     // Step 3: Create directory structure
     output::info("Creating directory structure...");
-    create_directories(&hostname)?;
+    create_directories()?;
     output::success("Directory structure created");
 
     // Step 4: Generate template files
@@ -67,7 +65,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
 
     if !has_content {
         output::info("Directory is empty, proceeding with init...");
-        create_directories(hostname)?;
+        create_directories()?;
         generate_templates(hostname)?;
         print_init_summary(hostname);
         return Ok(());
@@ -90,7 +88,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
 }
 
 /// Create necessary directories
-fn create_directories(hostname: &str) -> Result<()> {
+fn create_directories() -> Result<()> {
     let config_dir = paths::config_dir()?;
     let hosts_dir = paths::hosts_dir()?;
     let modules_dir = paths::modules_dir()?;
