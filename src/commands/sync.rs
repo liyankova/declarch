@@ -1,8 +1,8 @@
 use crate::utils::{output, errors::Result};
 use crate::config::loader;
 use crate::state;
-use std::collections::{HashMap, HashSet};
 use colored::Colorize;
+use std::collections::HashMap;
 
 /// Sync command options
 #[derive(Debug)]
