@@ -1,6 +1,5 @@
 use crate::utils::{output, errors::Result};
 use crate::config::{loader, validator, kdl};
-use std::path::Path;
 
 /// Run check command
 pub fn run(verbose: bool) -> Result<()> {
