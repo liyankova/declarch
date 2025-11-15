@@ -1,4 +1,4 @@
-use crate::utils::{output, paths, errors::Result};
+use crate::utils::{output, errors::Result};
 use crate::config::loader;
 use crate::state;
 
@@ -31,7 +31,6 @@ fn enable_host(hostname: &str) -> Result<()> {
     let mut state = match state::io::load_state() {
         Ok(s) => s,
         Err(_) => {
-            // Create fresh state if doesn't exist
             output::info("Creating new state file");
             state::io::init_state(hostname.to_string())?
         }
@@ -50,7 +49,7 @@ fn enable_host(hostname: &str) -> Result<()> {
     output::separator();
     println!("Active modules:");
     for module in &state.active_modules {
-        println!("  • {}", module);
+        output::item(&module);
     }
 
     Ok(())
@@ -70,22 +69,20 @@ fn show_status() -> Result<()> {
     };
 
     // Display current host
-    println!("Current host: {}", state.current_host);
-    println!();
+    output::keyval("Current host", &state.current_host);
 
     // Display active modules
-    if state.active_modules.is_empty() {
-        println!("Active modules: (none)");
-    } else {
-        println!("Active modules:");
+    if !state.active_modules.is_empty() {
+        println!();
+        println!("  Modules:");
         for module in &state.active_modules {
-            println!("  • {}", module);
+            output::indent(&format!("• {}", module), 2);
         }
     }
 
     // Display package count
     println!();
-    println!("Installed packages: {}", state.packages.len());
+    output::keyval("Packages", &state.packages.len().to_string());
 
     Ok(())
 }
@@ -111,11 +108,11 @@ fn list_hosts() -> Result<()> {
     for host in hosts {
         if let Some(ref current_host) = current {
             if &host == current_host {
-                println!("  * {} (current)", host);
+                output::item_highlight(&format!("{} (current)", host));
                 continue;
             }
         }
-        println!("  • {}", host);
+        output::item(&host);
     }
 
     Ok(())
