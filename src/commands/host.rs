@@ -21,17 +21,13 @@ pub fn run(action: HostAction) -> Result<()> {
 
 /// Enable a host and save to state
 fn enable_host(hostname: &str) -> Result<()> {
-    output::header(&format!("Enabling host: {}", hostname));
-
     // Verify host exists
     let host_config = loader::load_host(hostname)?;
-    output::success(&format!("Found host config: {}", hostname));
 
     // Load or create state
     let mut state = match state::io::load_state() {
         Ok(s) => s,
         Err(_) => {
-            output::info("Creating new state file");
             state::io::init_state(hostname.to_string())?
         }
     };
@@ -43,46 +39,42 @@ fn enable_host(hostname: &str) -> Result<()> {
 
     // Save state
     state::io::save_state(&state)?;
-    output::success(&format!("Enabled host: {}", hostname));
 
-    // Show summary
-    output::separator();
-    println!("Active modules:");
-    for module in &state.active_modules {
-        output::item(&module);
-    }
+    // Show compact result
+    output::success(&format!("Host enabled: {}", hostname.cyan().bold()));
+    output::list_compact(
+        &state
+            .active_modules
+            .iter()
+            .map(|s| s.as_str())
+            .collect::<Vec<_>>(),
+    );
 
     Ok(())
 }
 
 /// Show current host status
 fn show_status() -> Result<()> {
-    output::header("Host Status");
-
     // Load state
     let state = match state::io::load_state() {
         Ok(s) => s,
         Err(_) => {
-            output::warning("No state file found. Run 'declarch init' first");
+            output::warning("No state configured. Run 'declarch init' first");
             return Ok(());
         }
     };
 
-    // Display current host
-    output::keyval("Current host", &state.current_host);
-
-    // Display active modules
+    output::header("Host Status");
+    output::keyval("Host", &state.current_host.cyan().bold());
+    
     if !state.active_modules.is_empty() {
-        println!();
-        println!("  Modules:");
+        output::tag("Modules", &state.active_modules.len().to_string());
         for module in &state.active_modules {
-            output::indent(&format!("• {}", module), 2);
+            output::indent(&format!("• {}", module), 1);
         }
     }
 
-    // Display package count
-    println!();
-    output::keyval("Packages", &state.packages.len().to_string());
+    output::tag("Packages", &state.packages.len().to_string());
 
     Ok(())
 }
@@ -91,7 +83,7 @@ fn show_status() -> Result<()> {
 fn list_hosts() -> Result<()> {
     output::header("Available Hosts");
 
-    // Get current host from state (if exists)
+    // Get current host
     let current = match state::io::load_state() {
         Ok(s) => Some(s.current_host),
         Err(_) => None,
@@ -108,7 +100,7 @@ fn list_hosts() -> Result<()> {
     for host in hosts {
         if let Some(ref current_host) = current {
             if &host == current_host {
-                output::item_highlight(&format!("{} (current)", host));
+                output::item_bold(&format!("{} (current)", host.cyan()));
                 continue;
             }
         }
