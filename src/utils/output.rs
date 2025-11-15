@@ -143,8 +143,8 @@ pub fn status_summary(items: &[(&str, &str)]) {
 
 /// Show compact list
 pub fn list_compact(items: &[&str]) {
-    for item in items {
-        item(item);
+    for text in items {
+        item(text);
     }
 }
 

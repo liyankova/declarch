@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use crate::utils::{output, paths, errors::Result, templates};
 use crate::state;
-use chrono::Local;
+
 /// Options for init command
 #[derive(Debug)]
 pub struct InitOptions {
@@ -90,7 +90,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
             std::process::exit(0);
         }
         Some(1) => {
-            output::info("Backup and reinitialize...");
+            output::info("Backing up existing configuration...");
             backup_config(config_dir)?;
             create_directories()?;
             generate_templates(hostname)?;
@@ -105,6 +105,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
 
     Ok(())
 }
+
 /// Backup existing config
 fn backup_config(config_dir: &PathBuf) -> Result<()> {
     use chrono::Local;
