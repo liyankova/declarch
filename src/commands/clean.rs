@@ -1,5 +1,4 @@
 use crate::utils::{output, errors::Result};
-use std::process::Command;
 
 /// Run clean command
 pub fn run(full: bool, orphans: bool) -> Result<()> {
