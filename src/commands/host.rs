@@ -1,3 +1,4 @@
+use colored::Colorize;
 use crate::utils::{output, errors::Result};
 use crate::config::loader;
 use crate::state;
@@ -65,7 +66,7 @@ fn show_status() -> Result<()> {
     };
 
     output::header("Host Status");
-    output::keyval("Host", &state.current_host.cyan().bold());
+    output::keyval("Host", &state.current_host.cyan().bold().to_string());
     
     if !state.active_modules.is_empty() {
         output::tag("Modules", &state.active_modules.len().to_string());
@@ -100,7 +101,7 @@ fn list_hosts() -> Result<()> {
     for host in hosts {
         if let Some(ref current_host) = current {
             if &host == current_host {
-                output::item_bold(&format!("{} (current)", host.cyan()));
+                output::item_bold(&format!("{} (current)", host.cyan().bold().to_string()));
                 continue;
             }
         }
