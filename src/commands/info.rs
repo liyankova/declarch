@@ -1,6 +1,6 @@
+use colored::Colorize;
 use crate::utils::{output, errors::Result};
 use crate::state;
-use crate::config::loader;
 use std::collections::HashMap;
 
 /// Run info command
@@ -17,7 +17,7 @@ pub fn run(diff: bool) -> Result<()> {
     output::header("System Status");
 
     // Current host
-    output::keyval("Host", &state.current_host.cyan().bold());
+    output::keyval("Host", &state.current_host.cyan().bold().to_string());
 
     // Modules
     output::count_badge("Modules", state.active_modules.len());
@@ -45,7 +45,10 @@ pub fn run(diff: bool) -> Result<()> {
         }
 
         for (source, count) in by_source {
-            output::indent(&format!("{}: {}", source, count.to_string().cyan()), 1);
+            output::indent(
+                &format!("{}: {}", source, count.to_string().cyan().bold()),
+                1,
+            );
         }
     }
 
