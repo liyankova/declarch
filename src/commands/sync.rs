@@ -70,7 +70,7 @@ pub fn run(options: SyncOptions) -> Result<()> {
 
 /// Resolve packages from host config and modules
 fn resolve_packages(
-    hostname: &str,
+    _hostname: &str,
     host_config: &crate::config::types::HostConfig,
 ) -> Result<Vec<ResolvedPackage>> {
     let mut packages: HashMap<String, ResolvedPackage> = HashMap::new();
@@ -164,9 +164,9 @@ fn show_preview(packages: &[ResolvedPackage]) -> Result<()> {
             
             for pkg in pkgs {
                 let source_tag = if pkg.source == "host-override" {
-                    " [override]".bright_black()
+                    " [override]".bright_black().to_string()
                 } else {
-                    "".to_string()
+                    String::new()
                 };
                 output::indent(&format!("• {}{}", pkg.name, source_tag), 2);
             }
