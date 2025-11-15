@@ -53,10 +53,10 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
         }
         Some(Command::Info { diff }) => {
             commands::info::run(*diff)
+        
         }
-        Some(Command::Clean { full: _, orphans: _ }) => {
-            output::info("Clean command not yet implemented");
-            Ok(())
+        Some(Command::Clean { full, orphans }) => {
+            commands::clean::run(*full, *orphans)
         }
         None => {
             // No command provided, show help
