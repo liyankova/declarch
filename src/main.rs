@@ -1,5 +1,5 @@
 use clap::Parser;
-use declarch::cli::args::{Cli, Command, HostAction, EditTarget};
+use declarch::cli::args::{Cli, Command, HostAction};
 use declarch::utils::output;
 use declarch::commands;
 
@@ -48,9 +48,8 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             };
             commands::host::run(host_action)
         }
-        Some(Command::Check { verbose: _ }) => {
-            output::info("Check command not yet implemented");
-            Ok(())
+        Some(Command::Check { verbose }) => {
+            commands::check::run(*verbose)
         }
         Some(Command::Info { diff: _ }) => {
             output::info("Info command not yet implemented");
