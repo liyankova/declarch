@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use crate::utils::{output, paths, errors::Result, templates};
+use crate::state;
 
 /// Options for init command
 #[derive(Debug)]
@@ -47,7 +48,12 @@ pub fn run(options: InitOptions) -> Result<()> {
     generate_templates(&hostname)?;
     output::success("Template files generated");
 
-    // Step 5: Show summary
+    // Step 5: Enable the host (create state)
+    output::info("Enabling host...");
+    enable_host_state(&hostname)?;
+    output::success(&format!("Host '{}' enabled", hostname));
+
+    // Step 6: Show summary
     print_init_summary(&hostname);
 
     Ok(())
@@ -67,6 +73,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
         output::info("Directory is empty, proceeding with init...");
         create_directories()?;
         generate_templates(hostname)?;
+        enable_host_state(hostname)?;
         print_init_summary(hostname);
         return Ok(());
     }
@@ -138,6 +145,25 @@ fn generate_templates(hostname: &str) -> Result<()> {
 
     Ok(())
 }
+
+/// Enable host and create initial state
+fn enable_host_state(hostname: &str) -> Result<()> {
+    use crate::config::loader;
+
+    // Load host config
+    let host_config = loader::load_host(hostname)?;
+
+    // Create state
+    let mut state = state::io::init_state(hostname.to_string())?;
+    state.active_modules = host_config.modules.clone();
+    state.last_sync_method = "init".to_string();
+
+    // Save state
+    state::io::save_state(&state)?;
+
+    Ok(())
+}
+
 /// Print summary of what was initialized
 fn print_init_summary(hostname: &str) {
     output::separator();
