@@ -51,9 +51,8 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
         Some(Command::Check { verbose }) => {
             commands::check::run(*verbose)
         }
-        Some(Command::Info { diff: _ }) => {
-            output::info("Info command not yet implemented");
-            Ok(())
+        Some(Command::Info { diff }) => {
+            commands::info::run(*diff)
         }
         Some(Command::Clean { full: _, orphans: _ }) => {
             output::info("Clean command not yet implemented");
