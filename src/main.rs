@@ -1,5 +1,5 @@
 use clap::Parser;
-use declarch::cli::args::{Cli, Command, HostAction};
+use declarch::cli::args::{Cli, Command, HostAction, EditTarget};
 use declarch::utils::output;
 use declarch::commands;
 
@@ -36,8 +36,7 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             Ok(())
         }
         Some(Command::Edit { target, name }) => {
-            output::info(&format!("Edit command not yet implemented: {:?} {:?}", target, name));
-            Ok(())
+            commands::edit::run(target.clone(), name.clone())
         }
         Some(Command::Host { action }) => {
             let host_action = match action {
