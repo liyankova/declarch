@@ -12,22 +12,16 @@ pub fn default_host(hostname: &str) -> String {
         r#"// Host configuration for {}
 description "My {} setup"
 
-modules [
-  base
-]
+modules "base"
 
-// packages [
-//   additional-package
-//   flatpak:some-app
-// ]
+// Uncomment to add host-specific packages:
+// packages "additional-package" "flatpak:some-app"
 
-// exclude [
-//   unwanted-package
-// ]
+// Uncomment to exclude packages from modules:
+// exclude "unwanted-package"
 
-// conflicts [
-//   conflicting-package
-// ]
+// Uncomment to warn about conflicting packages:
+// conflicts "conflicting-package"
 "#,
         hostname, hostname
     )
@@ -39,9 +33,7 @@ pub fn default_module(name: &str) -> String {
         r#"// Module: {}
 description "Packages for {}"
 
-packages [
-  // Add packages here
-]
+packages "zsh" "git"
 "#,
         name, name
     )
@@ -52,14 +44,7 @@ pub fn default_base_module() -> String {
     r#"// Base system packages
 description "Essential system packages"
 
-packages [
-  zsh
-  git
-  curl
-  wget
-  vim
-  base-devel
-]
+packages "zsh" "git" "curl" "wget" "vim" "base-devel"
 "#
     .to_string()
 }
