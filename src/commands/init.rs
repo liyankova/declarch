@@ -2,7 +2,7 @@ use std::fs;
 use std::path::PathBuf;
 use crate::utils::{output, paths, errors::Result, templates};
 use crate::state;
-
+use chrono::Local;
 /// Options for init command
 #[derive(Debug)]
 pub struct InitOptions {
@@ -62,7 +62,7 @@ pub fn run(options: InitOptions) -> Result<()> {
 /// Handle case where config already exists
 fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
     output::warning("Declarch configuration already exists!");
-    output::info(&format!("Location: {}", config_dir.display()));
+    output::keyval("Location", &config_dir.display().to_string());
 
     // Check if empty
     let has_content = fs::read_dir(config_dir)?
@@ -70,7 +70,7 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
         .is_some();
 
     if !has_content {
-        output::info("Directory is empty, proceeding with init...");
+        output::info("Directory is empty, proceeding...");
         create_directories()?;
         generate_templates(hostname)?;
         enable_host_state(hostname)?;
@@ -78,20 +78,50 @@ fn handle_existing_config(config_dir: &PathBuf, hostname: &str) -> Result<()> {
         return Ok(());
     }
 
-    // Directory has content
-    output::error("Directory is not empty");
-    println!();
-    println!("Options:");
-    println!("  1. backup  - Backup existing config and create new");
-    println!("  2. abort   - Cancel initialization");
-    println!();
-    println!("Note: Use `declarch init --force` to skip this prompt");
-    println!();
-    println!("Choose action (1-2): ");
+    // Ask user what to do
+    let choice = output::prompt_choice(
+        "What would you like to do?",
+        &["Abort", "Backup and reinitialize"],
+    );
 
-    // For now, just abort (interactive input will be in future)
-    output::info("Aborting initialization");
-    std::process::exit(0);
+    match choice {
+        Some(0) => {
+            output::info("Initialization cancelled");
+            std::process::exit(0);
+        }
+        Some(1) => {
+            output::info("Backup and reinitialize...");
+            backup_config(config_dir)?;
+            create_directories()?;
+            generate_templates(hostname)?;
+            enable_host_state(hostname)?;
+            print_init_summary(hostname);
+        }
+        _ => {
+            output::error("Invalid choice");
+            std::process::exit(1);
+        }
+    }
+
+    Ok(())
+}
+/// Backup existing config
+fn backup_config(config_dir: &PathBuf) -> Result<()> {
+    use chrono::Local;
+    let timestamp = Local::now().format("%Y%m%d_%H%M%S");
+    let backup_dir = config_dir.parent().map(|p| {
+        p.join(format!(
+            ".declarch.backup-{}",
+            timestamp
+        ))
+    });
+
+    if let Some(backup) = backup_dir {
+        fs::rename(config_dir, &backup)?;
+        output::success(&format!("Backed up to: {}", backup.display()));
+    }
+
+    Ok(())
 }
 
 /// Create necessary directories
