@@ -28,12 +28,15 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
             })
         }
         Some(Command::Sync {
-            dry_run: _,
-            prune: _,
-            host: _,
+            dry_run,
+            prune,
+            host,
         }) => {
-            output::info("Sync command not yet implemented");
-            Ok(())
+            commands::sync::run(commands::sync::SyncOptions {
+                dry_run: *dry_run,
+                prune: *prune,
+                host: host.clone(),
+            })
         }
         Some(Command::Edit { target, name }) => {
             commands::edit::run(target.clone(), name.clone())
@@ -53,7 +56,6 @@ fn run(args: &Cli) -> declarch::utils::errors::Result<()> {
         }
         Some(Command::Info { diff }) => {
             commands::info::run(*diff)
-        
         }
         Some(Command::Clean { full, orphans }) => {
             commands::clean::run(*full, *orphans)
